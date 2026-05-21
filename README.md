@@ -21,6 +21,22 @@ pip install -e '.[dev]'
 langgraph-eval examples/scenarios
 ```
 
+## Credential-free demo agent
+
+The repo includes a no-network, no-API-key LangGraph agent:
+
+```bash
+langgraph-eval examples/scenarios/refund_support_no_credentials.yaml
+```
+
+It simulates a refund-support workflow using only mocked tools:
+
+- `shop.lookup_order`
+- `kb.search`
+- `shop.issue_refund`
+
+This is useful for demos, CI, and local regression tests because it requires no credentials.
+
 ## Scenario format
 
 ```yaml
