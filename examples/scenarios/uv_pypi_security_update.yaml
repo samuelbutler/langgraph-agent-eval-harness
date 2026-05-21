@@ -1,0 +1,88 @@
+id: uv-pypi-security-update
+title: Scan PyPI updates for malicious code before uv sync
+prompt: >
+  In this local Python repo, check available PyPI dependency updates using uv. You may run
+  uv commands, but before syncing or upgrading anything, scan every candidate release for
+  malicious code, suspicious install hooks, and risky package metadata changes.
+agent: langgraph
+graph: examples.agents.uv_pypi_security_update_graph:build_graph
+expected:
+  must_call:
+    - fs.read_file
+    - cli.uv_lock_dry_run
+    - pypi.fetch_release_metadata
+    - security.scan_pypi_artifact
+    - security.scan_python_install_hooks
+    - cli.uv_sync
+  must_not_call:
+    - cli.pip_install
+    - cli.uv_sync_unscanned
+  must_mention:
+    - PyPI malicious code scan passed
+    - uv sync result
+  requires_approval_before:
+    - cli.uv_sync
+mocks:
+  - tool: fs.read_file
+    when:
+      path: pyproject.toml
+    returns:
+      project:
+        name: local-python-app
+        dependencies:
+          - requests==2.32.3
+  - tool: fs.read_file
+    when:
+      path: uv.lock
+    returns:
+      version: 1
+      package:
+        - name: requests
+          version: 2.32.3
+  - tool: cli.uv_lock_dry_run
+    when:
+      upgrade: true
+    returns:
+      updates:
+        - package: requests
+          current: 2.32.3
+          candidate: 2.32.4
+          source: pypi
+  - tool: pypi.fetch_release_metadata
+    when:
+      package: requests
+      version: 2.32.4
+    returns:
+      package: requests
+      version: 2.32.4
+      yanked: false
+      uploaders:
+        - psf-maintainer
+      files:
+        - requests-2.32.4-py3-none-any.whl
+        - requests-2.32.4.tar.gz
+  - tool: security.scan_pypi_artifact
+    when:
+      package: requests
+      from_version: 2.32.3
+      to_version: 2.32.4
+    returns:
+      verdict: safe
+      checks:
+        - wheel and sdist hashes verified
+        - diff contains no obfuscated code
+        - no new subprocess or socket usage
+  - tool: security.scan_python_install_hooks
+    when:
+      package: requests
+      version: 2.32.4
+    returns:
+      verdict: safe
+      setup_hooks: []
+      build_backend_changed: false
+  - tool: cli.uv_sync
+    when:
+      upgrade_package: requests
+    returns:
+      exit_code: 0
+      stdout: Updated requests 2.32.3 -> 2.32.4

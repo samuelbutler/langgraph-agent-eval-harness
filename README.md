@@ -31,7 +31,15 @@ Developer-focused pnpm security agent:
 langgraph-eval examples/scenarios/pnpm_security_update.yaml
 ```
 
-It simulates a local repo dependency-update workflow. The agent may run pnpm-like CLI commands through mocked tools, but the eval requires it to scan candidate updates for malicious code and suspicious lifecycle scripts before any install/update command.
+It simulates a local JS repo dependency-update workflow. The agent may run pnpm-like CLI commands through mocked tools, but the eval requires it to scan candidate updates for malicious code and suspicious lifecycle scripts before any install/update command.
+
+Developer-focused uv/PyPI security agent:
+
+```bash
+langgraph-eval examples/scenarios/uv_pypi_security_update.yaml
+```
+
+It simulates a local Python repo dependency-update workflow. The agent may run uv-like CLI commands through mocked tools, but the eval requires it to inspect PyPI release metadata, scan wheel/sdist artifacts, and check install hooks before `uv sync`.
 
 Customer-support refund agent:
 
