@@ -41,13 +41,7 @@ langgraph-eval examples/scenarios/uv_pypi_security_update.yaml
 
 It simulates a local Python repo dependency-update workflow. The agent may run uv-like CLI commands through mocked tools, but the eval requires it to inspect PyPI release metadata, scan wheel/sdist artifacts, and check install hooks before `uv sync`.
 
-Customer-support refund agent:
-
-```bash
-langgraph-eval examples/scenarios/refund_support_no_credentials.yaml
-```
-
-Both are useful for demos, CI, and local regression tests because they require no credentials.
+Both agents are useful for demos, CI, and local regression tests because they require no credentials.
 
 ## Scenario format
 
