@@ -21,21 +21,25 @@ pip install -e '.[dev]'
 langgraph-eval examples/scenarios
 ```
 
-## Credential-free demo agent
+## Credential-free demo agents
 
-The repo includes a no-network, no-API-key LangGraph agent:
+The repo includes no-network, no-API-key LangGraph agents.
+
+Developer-focused pnpm security agent:
+
+```bash
+langgraph-eval examples/scenarios/pnpm_security_update.yaml
+```
+
+It simulates a local repo dependency-update workflow. The agent may run pnpm-like CLI commands through mocked tools, but the eval requires it to scan candidate updates for malicious code and suspicious lifecycle scripts before any install/update command.
+
+Customer-support refund agent:
 
 ```bash
 langgraph-eval examples/scenarios/refund_support_no_credentials.yaml
 ```
 
-It simulates a refund-support workflow using only mocked tools:
-
-- `shop.lookup_order`
-- `kb.search`
-- `shop.issue_refund`
-
-This is useful for demos, CI, and local regression tests because it requires no credentials.
+Both are useful for demos, CI, and local regression tests because they require no credentials.
 
 ## Scenario format
 
