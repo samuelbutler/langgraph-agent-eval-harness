@@ -43,6 +43,20 @@ It simulates a local Python repo dependency-update workflow. The agent may run u
 
 Both agents are useful for demos, CI, and local regression tests because they require no credentials.
 
+## Detailed explainer
+
+A LaTeX write-up with architecture notes and code snippets lives at:
+
+```txt
+docs/agent_eval_harness_explainer.tex
+```
+
+The compiled PDF is also checked in at:
+
+```txt
+docs/agent_eval_harness_explainer.pdf
+```
+
 ## Scenario format
 
 ```yaml
