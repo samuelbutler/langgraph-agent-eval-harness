@@ -45,13 +45,24 @@ scripted_plan:
     args: {query: login button is broken}
 ```
 
+## LangGraph adapter
+
+Set `agent: langgraph` and point `graph` at a factory that accepts a `MockToolRegistry` and returns a compiled graph.
+
+```yaml
+agent: langgraph
+graph: examples.agents.github_triage_graph:build_graph
+```
+
+The graph is invoked with state containing `prompt`, `notes`, and `approvals`. Tool calls should go through the registry so the harness can record and score them.
+
 ## Roadmap
 
 - [x] YAML scenario loader
 - [x] mock tool registry
 - [x] rule-based scoring
 - [x] CLI summary and JSON output
-- [ ] LangGraph adapter for real compiled graphs
+- [x] LangGraph adapter for real compiled graphs
 - [ ] LLM-as-judge scoring plugin
 - [ ] LangSmith trace export
 - [ ] dashboard for regression history

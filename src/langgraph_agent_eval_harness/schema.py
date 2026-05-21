@@ -29,6 +29,7 @@ class Scenario(BaseModel):
     title: str
     prompt: str
     agent: Literal["scripted", "langgraph"] = "scripted"
+    graph: str | None = Field(default=None, description="Import path: module:function")
     expected: ExpectedBehavior = Field(default_factory=ExpectedBehavior)
     mocks: list[MockResponse] = Field(default_factory=list)
     scripted_plan: list[ToolCall] = Field(default_factory=list)

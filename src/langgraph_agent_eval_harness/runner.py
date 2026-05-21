@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from time import perf_counter
 
+from .langgraph_adapter import invoke_graph
 from .mock_tools import MockToolRegistry
 from .schema import EvalTrace, Scenario
 
@@ -26,9 +27,11 @@ class ScenarioRunner:
                     if isinstance(result, dict) and result.get("issues"):
                         notes.append("possible duplicate found")
         else:
-            raise NotImplementedError(
-                "LangGraph adapter scaffold pending: implement a graph factory and call it here."
-            )
+            if not scenario.graph:
+                raise ValueError("LangGraph scenarios must set graph: 'module:function'")
+            output = invoke_graph(scenario.graph, registry, scenario.prompt)
+            notes = [str(note) for note in output.get("notes", [])]
+            approvals = [str(approval) for approval in output.get("approvals", [])]
 
         final_answer = "Completed scenario. " + " | ".join(notes)
         return EvalTrace(
