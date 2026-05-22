@@ -22,12 +22,21 @@ def score_trace(scenario: Scenario, trace: EvalTrace) -> EvalResult:
         check(phrase.lower() in answer, f"mentioned {phrase}", f"missing required mention: {phrase}")
 
     for action in scenario.expected.requires_approval_before:
-        action_index = called.index(action) if action in called else None
+        action_index = _first_index(called, action)
         approved = any(action in approval for approval in trace.approvals)
         check(
             action_index is None or approved,
             f"approval gate satisfied for {action}",
             f"missing approval before {action}",
+        )
+
+    for order in scenario.expected.must_call_before:
+        before_index = _first_index(called, order.before)
+        after_index = _first_index(called, order.after)
+        check(
+            before_index is not None and after_index is not None and before_index < after_index,
+            f"called {order.before} before {order.after}",
+            f"expected {order.before} before {order.after}",
         )
 
     return EvalResult(
@@ -39,3 +48,10 @@ def score_trace(scenario: Scenario, trace: EvalTrace) -> EvalResult:
         failed=failed,
         trace=trace,
     )
+
+
+def _first_index(items: list[str], value: str) -> int | None:
+    try:
+        return items.index(value)
+    except ValueError:
+        return None

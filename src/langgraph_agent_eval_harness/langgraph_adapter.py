@@ -2,12 +2,18 @@ from __future__ import annotations
 
 import importlib
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Protocol, cast
 
 from .mock_tools import MockToolRegistry
 
-GraphFactory = Callable[[MockToolRegistry], Any]
+
+class InvokableGraph(Protocol):
+    def invoke(self, input: dict[str, Any]) -> dict[str, Any]: ...
+
+
+GraphFactory = Callable[[MockToolRegistry], InvokableGraph]
 
 
 def load_graph_factory(spec: str) -> GraphFactory:
@@ -22,7 +28,7 @@ def load_graph_factory(spec: str) -> GraphFactory:
     factory = getattr(module, function_name)
     if not callable(factory):
         raise TypeError(f"{spec} is not callable")
-    return factory
+    return cast(GraphFactory, factory)
 
 
 def invoke_graph(spec: str, registry: MockToolRegistry, prompt: str) -> dict[str, Any]:

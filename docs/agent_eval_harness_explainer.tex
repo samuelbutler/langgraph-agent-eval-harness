@@ -191,6 +191,28 @@ def scan_updates(state: PnpmSecurityState) -> dict[str, Any]:
 
 The test additionally verifies order: scan calls must occur before \texttt{cli.pnpm\_update}.
 
+\section{Real npm Update Scanner}
+
+The project now includes a real npm scanner behind the mocked security concept. It downloads old and new npm tarballs into a temporary directory with a \texttt{lageh-npm-scan-} prefix, extracts them with path traversal and link protection, and never executes package code.
+
+\begin{lstlisting}[language=Python,caption={Real npm scanner entry point}]
+result = scan_npm_update(
+    "left-pad",
+    "1.3.0",
+    "1.3.0",
+    registry_url="https://registry.npmjs.org",
+)
+\end{lstlisting}
+
+The scanner inspects changed files and package metadata for high-risk signals: new lifecycle scripts, \texttt{child\_process}, dynamic \texttt{eval}/\texttt{Function}, shell download commands, socket usage, credential environment access, and large encoded payloads. It can also scan local tarballs in tests without network access.
+
+\begin{lstlisting}[language=Python,caption={Safe tarball extraction checks}]
+if not str(target).startswith(str(dest.resolve()) + '/') and target != dest.resolve():
+    raise ValueError(f"Unsafe tarball path: {member.name}")
+if member.issym() or member.islnk():
+    raise ValueError(f"Refusing link in tarball: {member.name}")
+\end{lstlisting}
+
 \section{uv/PyPI Security Agent}
 
 The uv/PyPI agent models a Python dependency-update workflow:
@@ -257,7 +279,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'
 pytest -q
-langgraph-eval examples/scenarios
+langgraph-eval run examples/scenarios
 \end{lstlisting}
 
 Expected output includes passing scores for the dependency-security agents:

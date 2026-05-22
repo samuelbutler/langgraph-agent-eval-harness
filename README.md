@@ -18,7 +18,7 @@ The goal: make agent behavior testable before wiring it to real GitHub, Slack, G
 python -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'
-langgraph-eval examples/scenarios
+langgraph-eval run examples/scenarios
 ```
 
 ## Credential-free demo agents
@@ -28,7 +28,7 @@ The repo includes no-network, no-API-key LangGraph agents.
 Developer-focused pnpm security agent:
 
 ```bash
-langgraph-eval examples/scenarios/pnpm_security_update.yaml
+langgraph-eval run examples/scenarios/pnpm_security_update.yaml
 ```
 
 It simulates a local JS repo dependency-update workflow. The agent may run pnpm-like CLI commands through mocked tools, but the eval requires it to scan candidate updates for malicious code and suspicious lifecycle scripts before any install/update command.
@@ -36,12 +36,22 @@ It simulates a local JS repo dependency-update workflow. The agent may run pnpm-
 Developer-focused uv/PyPI security agent:
 
 ```bash
-langgraph-eval examples/scenarios/uv_pypi_security_update.yaml
+langgraph-eval run examples/scenarios/uv_pypi_security_update.yaml
 ```
 
 It simulates a local Python repo dependency-update workflow. The agent may run uv-like CLI commands through mocked tools, but the eval requires it to inspect PyPI release metadata, scan wheel/sdist artifacts, and check install hooks before `uv sync`.
 
 Both agents are useful for demos, CI, and local regression tests because they require no credentials.
+
+## Real npm package scanner
+
+The harness now includes a real npm update scanner that downloads package tarballs into an isolated temporary directory, extracts them with path-traversal/link protection, never executes package code, and inspects changed files plus lifecycle scripts.
+
+```bash
+langgraph-eval scan-npm left-pad 1.3.0 1.3.0
+```
+
+It checks for high-risk signals such as new `preinstall`/`postinstall` scripts, `child_process`, dynamic `eval`/`Function`, shell download commands, network socket usage, credential environment access, and large encoded payloads.
 
 ## Detailed explainer
 

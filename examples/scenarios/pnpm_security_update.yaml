@@ -21,6 +21,11 @@ expected:
     - pnpm update result
   requires_approval_before:
     - cli.pnpm_update
+  must_call_before:
+    - before: security.scan_package_update
+      after: cli.pnpm_update
+    - before: security.scan_lifecycle_scripts
+      after: cli.pnpm_update
 mocks:
   - tool: fs.read_file
     when:

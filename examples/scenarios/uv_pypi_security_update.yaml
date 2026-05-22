@@ -22,6 +22,13 @@ expected:
     - uv sync result
   requires_approval_before:
     - cli.uv_sync
+  must_call_before:
+    - before: pypi.fetch_release_metadata
+      after: cli.uv_sync
+    - before: security.scan_pypi_artifact
+      after: cli.uv_sync
+    - before: security.scan_python_install_hooks
+      after: cli.uv_sync
 mocks:
   - tool: fs.read_file
     when:
